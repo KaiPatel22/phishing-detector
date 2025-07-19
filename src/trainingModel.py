@@ -57,9 +57,11 @@ x_train, x_test, y_train, y_test = train_test_split(x_data, y_data, test_size=0.
 
 searchSpace = {
     'n_estimators': (100, 500),
-    'max_depth': (10, 50),
+    'max_depth': (5, 30),
     'max_features': (2, 10),
-    'min_samples_leaf': (1, 10)
+    'min_samples_leaf': (2, 20),
+    'learning_rate': (0.01, 0.4)
+
 }
 
 # bayesOpt = BayesSearchCV(
@@ -88,11 +90,11 @@ searchSpace = {
 # print(classification_report(y_test, y_pred))
 
 bayesOpt = BayesSearchCV(
-    estimator=GradientBoostingClassifier(learning_rate=0.4, random_state=42),
+    estimator=GradientBoostingClassifier(random_state=42),
     search_spaces=searchSpace,
-    scoring='f1',
-    cv=4,
-    n_iter=50,  # Number of iterations for Bayesian optimization
+    scoring='accuracy',
+    cv=5,
+    n_iter=200,  # Number of iterations for Bayesian optimization
     verbose=3,
     random_state=42
 )

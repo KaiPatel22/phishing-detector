@@ -1,6 +1,7 @@
 # Phishing detector
 
-##Dataset from: https://www.kaggle.com/datasets/eswarchandt/phishing-website-detector?resource=download
+## Dataset from: https://www.kaggle.com/datasets/eswarchandt/phishing-website-detector?resource=download
+    
     -1 is Phishing, 0 is Suspicious and 1 is legitimate
     6157 non-phishing links
     4897 phishing links
