@@ -5,6 +5,7 @@ from sklearn.metrics import accuracy_score, classification_report
 from sklearn.model_selection import GridSearchCV
 from skopt import BayesSearchCV
 from sklearn.ensemble import GradientBoostingClassifier
+from joblib import dump, load
 
 dataset = pd.read_csv('data/phishing.csv')
 
@@ -90,7 +91,7 @@ bayesOpt = BayesSearchCV(
     estimator=GradientBoostingClassifier(learning_rate=0.4, random_state=42),
     search_spaces=searchSpace,
     scoring='f1',
-    cv=5,
+    cv=4,
     n_iter=50,  # Number of iterations for Bayesian optimization
     verbose=3,
     random_state=42
@@ -103,3 +104,8 @@ accuracy = accuracy_score(y_test, y_pred)
 print(f'Accuracy: {accuracy}')
 print(classification_report(y_test, y_pred))
 print(f'Best Hyperparameters: {bayesOpt.best_params_}')
+
+dump(bestModel, 'models/model.joblib')  # Saves the trained model to a file
+loadedModel = load('models/model.joblib')  # Loads the trained model from a file
+y_pred_loaded = loadedModel.predict(x_test)
+print(f'Accuracy (Loaded Model): {accuracy_score(y_test, y_pred_loaded)}')
