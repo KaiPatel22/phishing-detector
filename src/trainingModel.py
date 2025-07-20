@@ -2,7 +2,7 @@ import pandas as pd
 from sklearn.model_selection import train_test_split
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import accuracy_score, classification_report
-from sklearn.model_selection import GridSearchCV
+from sklearn.model_selection import StratifiedKFold # Ensures that each fold of the cross-validation is balanced
 from skopt import BayesSearchCV
 from sklearn.ensemble import GradientBoostingClassifier
 from joblib import dump, load
@@ -57,7 +57,7 @@ x_train, x_test, y_train, y_test = train_test_split(x_data, y_data, test_size=0.
 
 searchSpace = {
     'n_estimators': (100, 500),
-    'max_depth': (5, 30),
+    'max_depth': (5, 20),
     'max_features': (2, 10),
     'min_samples_leaf': (2, 20),
     'learning_rate': (0.01, 0.4)
@@ -92,9 +92,9 @@ searchSpace = {
 bayesOpt = BayesSearchCV(
     estimator=GradientBoostingClassifier(random_state=42),
     search_spaces=searchSpace,
-    scoring='accuracy',
-    cv=5,
-    n_iter=200,  # Number of iterations for Bayesian optimization
+    scoring='recall', #accuracy, recall and f1
+    cv=StratifiedKFold(n_splits=5),
+    n_iter=100,  # Number of iterations for Bayesian optimization
     verbose=3,
     random_state=42
 )
