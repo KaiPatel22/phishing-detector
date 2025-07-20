@@ -12,12 +12,12 @@ dataset = pd.read_csv('data/phishing.csv')
 # print(dataset['class'].value_counts()) # Checks how many links are phishing and how many are not
 
 x_data = dataset[['UsingIP', 'LongURL', 'ShortURL', 'Symbol@', 'Redirecting//',
-       'PrefixSuffix-', 'SubDomains', 'HTTPS', 'DomainRegLen', 'Favicon',
-       'NonStdPort', 'HTTPSDomainURL', 'RequestURL', 'AnchorURL',
-       'LinksInScriptTags', 'ServerFormHandler', 'InfoEmail', 'AbnormalURL',
-       'WebsiteForwarding', 'StatusBarCust', 'DisableRightClick',
-       'UsingPopupWindow', 'IframeRedirection', 'AgeofDomain', 'DNSRecording',
-       'WebsiteTraffic', 'PageRank', 'GoogleIndex', 'LinksPointingToPage',
+       'LinksInScriptTags', 'StatusBarCust', 'DisableRightClick', # Index removed since its arbituary, Favicon, NonStdPort WebsiteTraffic
+       'WebsiteForwarding', 'PrefixSuffix-', 'SubDomains', 'HTTPS',
+       'DomainRegLen', 'RequestURL', 'AnchorURL','IframeRedirection', # InfoEmail removed but could be readded
+       'HTTPSDomainURL', 'ServerFormHandler', 'AbnormalURL',
+       'UsingPopupWindow', 'AgeofDomain', 'DNSRecording',
+       'PageRank', 'GoogleIndex', 'LinksPointingToPage',
        'StatsReport']]
 
 y_data = dataset[['class']]
@@ -92,9 +92,9 @@ searchSpace = {
 bayesOpt = BayesSearchCV(
     estimator=GradientBoostingClassifier(random_state=42),
     search_spaces=searchSpace,
-    scoring='recall', #accuracy, recall and f1
+    scoring='accuracy', #accuracy, recall and f1
     cv=StratifiedKFold(n_splits=5),
-    n_iter=100,  # Number of iterations for Bayesian optimization
+    n_iter=200,  # Number of iterations for Bayesian optimization
     verbose=3,
     random_state=42
 )
