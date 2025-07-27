@@ -150,4 +150,18 @@ def extractHTTPS(url): # THIS METHOD MIGHT NOT BE THE BEST INDICATOR IF A URL IS
             logging.exception(f"Failed to extract SSL certificate for URL: {url}")
             sys.exit(1)
 
-print(extractHTTPS(""))
+def extractDomainRegLen(url): # AGAIN DON'T KNOW HOW EFECTIVE THIS FEATURE IS AS REPORTS LOTS OF URLs AS SUSPICIOUS
+    try:
+        parsedURL = urlparse(url)
+        hostname = parsedURL.hostname
+        context = ssl.create_default_context()
+        cert = context.wrap_socket(socket.create_connection((hostname, 443)), server_hostname=hostname).getpeercert()
+        expiryDate = datetime.strptime(cert['notAfter'], "%b %d %H:%M:%S %Y %Z")
+        remainingValidity = (expiryDate - datetime.now()).days / 365.0
+        if remainingValidity <= 1.0:
+            return -1 
+        else:
+            return 1
+    except:
+        logging.exception(f"Failed to extract domain registration length for URL: {url}")
+        sys.exit(1)
