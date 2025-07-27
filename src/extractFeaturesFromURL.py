@@ -2,6 +2,9 @@ import logging
 from urllib.parse import urlparse
 import sys
 from IPy import IP
+import ssl
+import socket
+from datetime import datetime
 
 logging.basicConfig(
     level=logging.INFO,
@@ -113,3 +116,38 @@ def extractSubDomains(url):
         return 0
     else:
         return 1
+
+def extractHTTPS(url): # THIS METHOD MIGHT NOT BE THE BEST INDICATOR IF A URL IS PHISHING (MARKS A LOT OF URLS AS SUSPICIOUS)
+    trustedIssuers = [
+        "DigiCert Inc", "Sectigo Limited", "Let's Encrypt", "GlobalSign",
+        "Entrust, Inc.", "Amazon Trust Services LLC", "Google Trust Services",
+        "GoDaddy.com, Inc.", "Buypass AS", "Actalis S.p.A.",
+        "Certum", "SSL.com", "Izenpe S.A.",
+        "QuoVadis Limited", "TWCA", "SwissSign AG", "Trustwave Holdings, Inc."
+    ]
+
+    parsedURL = urlparse(url)
+    if parsedURL.scheme == "http":
+        return -1
+    else:
+        try:
+            hostname = parsedURL.hostname
+            context = ssl.create_default_context()
+            cert = context.wrap_socket(socket.create_connection((hostname, 443)), server_hostname=hostname).getpeercert()
+            issuer = dict(x[0] for x in cert['issuer'])
+            issuerName = issuer['organizationName'] if 'organizationName' in issuer else issuer['commonName']
+            isTrustedIssuer = issuerName in trustedIssuers
+            if not(isTrustedIssuer):
+                return 0 
+            else:
+                becomesValid = datetime.strptime(cert['notBefore'], "%b %d %H:%M:%S %Y %Z")
+                certificateAge = (datetime.now() - becomesValid).days / 365.0
+                if certificateAge >= 1.0:
+                    return 1
+                else:
+                    return 0
+        except:
+            logging.exception(f"Failed to extract SSL certificate for URL: {url}")
+            sys.exit(1)
+
+print(extractHTTPS(""))
