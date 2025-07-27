@@ -165,3 +165,11 @@ def extractDomainRegLen(url): # AGAIN DON'T KNOW HOW EFECTIVE THIS FEATURE IS AS
     except:
         logging.exception(f"Failed to extract domain registration length for URL: {url}")
         sys.exit(1)
+
+def extractHTTPSDomainURL(url):
+    parsedURL = urlparse(url)
+    domain = parsedURL.netloc
+    if parsedURL.scheme == "http" or domain.count("https") > 0:
+        return -1
+    else:
+        return 1
