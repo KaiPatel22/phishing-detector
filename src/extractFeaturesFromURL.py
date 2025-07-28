@@ -5,6 +5,8 @@ from IPy import IP
 import ssl
 import socket
 from datetime import datetime
+from bs4 import BeautifulSoup
+import requests
 
 logging.basicConfig(
     level=logging.INFO,
@@ -173,3 +175,17 @@ def extractHTTPSDomainURL(url):
         return -1
     else:
         return 1
+    
+def extractRequestURL(url):
+    try:
+        parsedURL = urlparse(url)
+        domain = parsedURL.netloc
+        reponse = requests.get(url, timeout=10)
+        soup = BeautifulSoup(reponse.content, 'html.parser')
+        return soup
+
+    except:
+        logging.exception(f"Failed to make request to URL: {url}")
+        sys.exit(1)
+
+print(extractRequestURL("https://www.google.com"))  # Example usage, replace with actual URL for testing
