@@ -186,7 +186,8 @@ def extractRequestURL(url):
         for tag in ["img", "video", "audio", "iframe", "embed"]:
             for element in urlContent.find_all(tag):
                 src = element.get("src")
-                objects.append(src)
+                if src:
+                    objects.append(src)
             
         externalObjectCount = 0
         for objectURL in objects:
@@ -217,7 +218,7 @@ def extractAnchorURL(url):
         for tag in ["a"]:
             for element in urlContent.find_all(tag):
                 href = element.get("href")
-                if href not in ["#", "#content", "#skip", "javascript:void(0)"]:
+                if href and href not in ["#", "#content", "#skip", "javascript:void(0)"]:
                     hrefObjects.append(href)
         
         externalAnchorCount = 0
@@ -251,13 +252,16 @@ def extractLinksInScriptTags(url):
             for element in urlContent.find_all(tag):
                 if tag == "meta":
                     content = element.get("content")
-                    scriptObjects.append(content)
+                    if content:
+                        scriptObjects.append(content)
                 elif tag == "script":
                     src = element.get("src")
-                    scriptObjects.append(src)
+                    if src:
+                        scriptObjects.append(src)
                 elif tag == "link":
                     href = element.get("href")
-                    scriptObjects.append(href)
+                    if href:
+                        scriptObjects.append(href)
 
         externalCount = 0
         for htmlURL in scriptObjects:
@@ -278,4 +282,6 @@ def extractLinksInScriptTags(url):
         logging.exception(f"Failed to make request to URL: {url}")
         sys.exit(1)
 
+print(extractRequestURL("https://pypi.org"))
+print(extractAnchorURL("https://pypi.org"))
 print(extractLinksInScriptTags("https://pypi.org"))
