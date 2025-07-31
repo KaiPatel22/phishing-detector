@@ -206,4 +206,37 @@ def extractRequestURL(url):
         logging.exception(f"Failed to make request to URL: {url}")
         sys.exit(1)
 
-print(extractRequestURL("https://apple.com"))
+def extractAnchorURL(url):
+    try:
+        parsedURL = urlparse(url)
+        domain = parsedURL.netloc
+        response = requests.get(url, timeout=10)
+        urlContent = BeautifulSoup(response.content, 'html.parser')
+        hrefObjects = []
+
+        for tag in ["a"]:
+            for element in urlContent.find_all(tag):
+                href = element.get("href")
+                if href not in ["#", "#content", "#skip", "javascript:void(0)"]:
+                    hrefObjects.append(href)
+        
+        externalAnchorCount = 0
+        for anchorURL in hrefObjects:
+            anchorParsedURL = urlparse(anchorURL)
+            anchorDomain = anchorParsedURL.netloc
+            if anchorDomain and anchorDomain != domain:
+                externalAnchorCount += 1
+        
+        externalAnchorPercentage = (externalAnchorCount / len(hrefObjects)) * 100
+        if externalAnchorPercentage < 31:
+            return 1
+        elif externalAnchorPercentage >= 31 and externalAnchorPercentage <= 67:
+            return 0 
+        else:
+            return -1
+
+    except:
+        logging.exception(f"Failed to extract anchor URL for: {url}")
+        sys.exit(1)
+
+print(extractAnchorURL("https://pypi.org"))
