@@ -239,4 +239,43 @@ def extractAnchorURL(url):
         logging.exception(f"Failed to extract anchor URL for: {url}")
         sys.exit(1)
 
-print(extractAnchorURL("https://pypi.org"))
+def extractLinksInScriptTags(url):
+    try:
+        parsedURL = urlparse(url)
+        domain = parsedURL.netloc
+        response = requests.get(url, timeout=10)
+        urlContent = BeautifulSoup(response.content, 'html.parser')
+        scriptObjects = []
+
+        for tag in ["meta", "script", "link"]:
+            for element in urlContent.find_all(tag):
+                if tag == "meta":
+                    content = element.get("content")
+                    scriptObjects.append(content)
+                elif tag == "script":
+                    src = element.get("src")
+                    scriptObjects.append(src)
+                elif tag == "link":
+                    href = element.get("href")
+                    scriptObjects.append(href)
+
+        externalCount = 0
+        for htmlURL in scriptObjects:
+            htmlParsedURL = urlparse(htmlURL)
+            htmlDomain = htmlParsedURL.netloc
+            if htmlDomain and htmlDomain != domain:
+                externalCount += 1
+        
+        externalPercentage = (externalCount / len(scriptObjects)) * 100
+        if externalPercentage < 17:
+            return 1
+        elif externalPercentage >= 17 and externalPercentage <= 81:
+            return 0 
+        else:
+            return -1
+
+    except:
+        logging.exception(f"Failed to make request to URL: {url}")
+        sys.exit(1)
+
+print(extractLinksInScriptTags("https://pypi.org"))
