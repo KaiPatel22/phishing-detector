@@ -181,11 +181,29 @@ def extractRequestURL(url):
         parsedURL = urlparse(url)
         domain = parsedURL.netloc
         reponse = requests.get(url, timeout=10)
-        soup = BeautifulSoup(reponse.content, 'html.parser')
-        return soup
-
+        urlContent = BeautifulSoup(reponse.content, 'html.parser')
+        objects = []
+        for tag in ["img", "video", "audio", "iframe", "embed"]:
+            for element in urlContent.find_all(tag):
+                src = element.get("src")
+                objects.append(src)
+            
+        externalObjectCount = 0
+        for objectURL in objects:
+            imageURL = urlparse(objectURL)
+            imageDomain = imageURL.netloc
+            if imageDomain and imageDomain != domain:
+                externalObjectCount += 1
+        
+        externalPercentage = (externalObjectCount / len(objects)) * 100
+        if externalPercentage < 22:
+            return 1
+        elif externalPercentage >= 22 and externalPercentage <= 61:
+            return 0 
+        else:
+            return -1
     except:
         logging.exception(f"Failed to make request to URL: {url}")
         sys.exit(1)
 
-print(extractRequestURL("https://www.google.com"))  # Example usage, replace with actual URL for testing
+print(extractRequestURL("https://apple.com"))
