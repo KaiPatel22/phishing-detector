@@ -1,5 +1,5 @@
 import logging
-from urllib.parse import urlparse
+from urllib.parse import urlparse, urljoin
 import sys
 from IPy import IP
 import ssl
@@ -282,6 +282,35 @@ def extractLinksInScriptTags(url):
         logging.exception(f"Failed to make request to URL: {url}")
         sys.exit(1)
 
-print(extractRequestURL("https://pypi.org"))
-print(extractAnchorURL("https://pypi.org"))
-print(extractLinksInScriptTags("https://pypi.org"))
+def extractServerFormHandler(url): 
+    try:
+        parsedURL = urlparse(url)
+        domain = parsedURL.netloc
+        response = requests.get(url, timeout=10)
+        urlContent = BeautifulSoup(response.content, 'html.parser')
+        formObjects = []
+
+        for tag in ["form"]:
+            for element in urlContent.find_all(tag):
+                action = element.get("action")
+                if action.startswith('/'):
+                    fullAction = urljoin(url, action)
+                    formObjects.append(fullAction)
+                else:
+                    formObjects.append(action)
+        print(f"Form Objects: {formObjects}")
+
+        for formHandler in formObjects:
+            if formHandler == "about:blank" or formHandler == "" or formHandler is None:
+                return -1
+            else:
+                formParsedURL = urlparse(formHandler)
+                formDomain = formParsedURL.netloc
+                if formDomain != domain:
+                    return 0
+        return 1
+    except:
+        logging.exception(f"Failed to make request to URL: {url}")
+        sys.exit(1)
+
+print(extractServerFormHandler("https://pypi.org"))
