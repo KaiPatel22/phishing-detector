@@ -8,17 +8,18 @@ from sklearn.ensemble import GradientBoostingClassifier
 from joblib import dump, load
 
 dataset = pd.read_csv('data/phishing.csv')
+print(dataset.columns)
 
 # print(dataset['class'].value_counts()) # Checks how many links are phishing and how many are not
 
-x_data = dataset[['UsingIP', 'LongURL', 'ShortURL', 'Symbol@', 'Redirecting//',
-       'LinksInScriptTags', 'StatusBarCust', 'DisableRightClick', # Index removed since its arbituary, Favicon, NonStdPort WebsiteTraffic
-       'WebsiteForwarding', 'PrefixSuffix-', 'SubDomains', 'HTTPS',
-       'DomainRegLen', 'RequestURL', 'AnchorURL','IframeRedirection', # InfoEmail removed but could be readded
-       'HTTPSDomainURL', 'ServerFormHandler', 'AbnormalURL',
-       'UsingPopupWindow', 'AgeofDomain', 'DNSRecording',
+x_data = ['UsingIP', 'LongURL', 'ShortURL', 'Symbol@', 'Redirecting//', # Index, Favicon, NonStdPort WebsiteTraffic, InfoEmail removed
+       'PrefixSuffix-', 'SubDomains', 'HTTPS', 'DomainRegLen',
+       'HTTPSDomainURL', 'RequestURL', 'AnchorURL',
+       'LinksInScriptTags', 'ServerFormHandler', 'AbnormalURL',
+       'WebsiteForwarding', 'StatusBarCust', 'DisableRightClick',
+       'UsingPopupWindow', 'IframeRedirection', 'AgeofDomain', 'DNSRecording', 
        'PageRank', 'GoogleIndex', 'LinksPointingToPage',
-       'StatsReport']]
+       'StatsReport']
 
 y_data = dataset[['class']]
 
