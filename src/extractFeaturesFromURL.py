@@ -329,4 +329,32 @@ def extractAbnormalURL(url):
         logging.exception(f"Failed to make request to URL: {url}")
         sys.exit(1)
 
-print(extractAbnormalURL("https://pypi.org"))
+def extractWebsiteForwarding(url):
+    try:
+        response = requests.get(url, allow_redirects=True)
+        redirectCount = len(response.history)
+        if redirectCount <= 1:
+            return 1
+        elif redirectCount >= 2 and redirectCount < 4:
+            return 0
+        else:
+            return -1
+    except:
+        logging.exception(f"Failed to parse URL: {url}")
+        sys.exit(1)
+
+def extractStatusBarCust(url): # May not be the best as window.status is deprecated 
+    returnValue = 1
+    try:
+        response = requests.get(url, timeout=10)
+        urlContent = BeautifulSoup(response.content, 'html.parser')
+        for tag in urlContent.find_all(attrs={"onmouseover": True}):
+            onMouseoverContent = tag.attrs['onmouseover']
+            if 'window.status' in onMouseoverContent.lower():
+                returnValue = -1
+        return returnValue
+    except:
+        logging.exception(f"Failed to make request to URL: {url}")
+        sys.exit(1)
+
+print(extractStatusBarCust("https://en.wikipedia.org/wiki/Python_(programming_language)"))
