@@ -7,6 +7,7 @@ import socket
 from datetime import datetime
 from bs4 import BeautifulSoup
 import requests
+import whois
 
 logging.basicConfig(
     level=logging.INFO,
@@ -298,7 +299,6 @@ def extractServerFormHandler(url):
                     formObjects.append(fullAction)
                 else:
                     formObjects.append(action)
-        print(f"Form Objects: {formObjects}")
 
         for formHandler in formObjects:
             if formHandler == "about:blank" or formHandler == "" or formHandler is None:
@@ -313,4 +313,20 @@ def extractServerFormHandler(url):
         logging.exception(f"Failed to make request to URL: {url}")
         sys.exit(1)
 
-print(extractServerFormHandler("https://pypi.org"))
+def extractAbnormalURL(url):
+    try:
+        parsedURL = urlparse(url)
+        domain = parsedURL.hostname
+        if domain.count(".") > 0:
+            parts = domain.split(".")
+            domain = parts[0]
+        whoIs = whois.whois(parsedURL.hostname)
+        if domain in whoIs.domain_name:
+            return 1
+        else:
+            return -1
+    except:
+        logging.exception(f"Failed to make request to URL: {url}")
+        sys.exit(1)
+
+print(extractAbnormalURL("https://pypi.org"))

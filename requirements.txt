@@ -6,3 +6,4 @@ logging
 IPy
 beautifulsoup4
 requests
+python-whois
